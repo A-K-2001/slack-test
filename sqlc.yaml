@@ -1,0 +1,31 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    # queries: "sql/queries" # driver
+    queries: "database/queries"
+    # schema: "sql/schema.sql" # driver
+    schema: "database/schema.sql"
+    gen:
+      go:
+        package: "models"
+        out: "database/models"
+        sql_package: "pgx/v5"
+        json_tags_case_style: "snake"
+        output_db_file_name: "queries.go"
+        emit_json_tags: true
+        emit_db_tags: true
+        emit_enum_valid_method: true
+        emit_pointers_for_null_types: true
+        emit_prepared_queries: true
+        emit_empty_slices: true
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+          - db_type: "uuid"
+            nullable: true
+            go_type:
+              pointer: true
+              import: "github.com/google/uuid"
+              type: "UUID"
