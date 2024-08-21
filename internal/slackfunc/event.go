@@ -72,7 +72,7 @@ func handleFileShared(ev *slackevents.FileSharedEvent, client *slack.Client) {
 	msgParts := strings.Split(msg, ":")
 	issueID := ""
 	if len(msgParts) > 1 {
-		issueID = msgParts[1]
+		issueID = strings.TrimSpace(strings.Split(msgParts[1], "\n")[0])
 		// Use issueID as needed
 	}
 
@@ -110,9 +110,9 @@ func handleInteraction(callback slack.InteractionCallback, client *slack.Client)
 		if err != nil {
 			fmt.Printf("Error creating issue on linear: %v\n", err)
 		}
-		message := "Thanks for submitting the issue! Please upload screenshot to support your issue in the thread of this chat. \nYour issueId: " + issueID + "\nTitle: " + title + "\nDescription: " + description
+		message := "Thanks for submitting the issue! Please upload screenshot to support your issue in the thread of this chat. \nYour issueId: " + issueID + " \nTitle: " + title + "\nDescription: " + description
 
-		_, _, err = client.PostMessage(callback.User.ID, slack.MsgOptionText(message, false))
+		_, _, err = client.PostMessage(callback.User.ID, slack.MsgOptionText(message, false), slack.MsgOptionMetadata(slack.SlackMetadata{}))
 		if err != nil {
 			fmt.Printf("Error sending upload instructions: %v\n", err)
 		}
@@ -123,10 +123,10 @@ func handleInteraction(callback slack.InteractionCallback, client *slack.Client)
 
 func handleMessage(ev *slackevents.MessageEvent, client *slack.Client, repo *database.Repository) {
 	print(ev.Text)
-	switch strings.ToLower(strings.Split(ev.Text, " ")[0]) {
-	case "rider":
-		slackcmd.AppCammonds(ev, client, repo)
-	default:
-		client.PostMessage(ev.Channel, slack.MsgOptionText("comming soon ...", true))
-	}
+	// switch strings.ToLower(strings.Split(ev.Text, " ")[0]) {
+	// case "rider":
+	// 	slackcmd.AppCammonds(ev, client, repo)
+	// default:
+	// 	client.PostMessage(ev.Channel, slack.MsgOptionText("comming soon ...", true))
+	// }
 }

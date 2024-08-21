@@ -9,9 +9,9 @@ import (
 
 func AppCammonds(ev *slackevents.MessageEvent, client *slack.Client, repo *database.Repository) {
 
-	// if strings.ToLower(strings.Split(ev.Text, " ")[1])  handle here all
+	// if strings.ToLower(strings.Split(ev.Text, " ")[1]) // handle here all
 
-	client.PostMessage(ev.Channel, slack.MsgOptionText("comming soon..", true))
+	// client.PostMessage(ev.Channel, slack.MsgOptionText("comming soon..", true))
 
 	// bot.AddCommand(&slacker.CommandDefinition{
 	// 	Command: "app -v -p {platform}",
