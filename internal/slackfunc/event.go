@@ -68,13 +68,7 @@ func handleSlashCommand(cmd slack.SlashCommand, client *slack.Client) {
 
 func handleFileShared(ev *slackevents.FileSharedEvent, client *slack.Client) {
 	// channel_id := ev.ChannelID
-	msg := linear.GetIssueId(ev, client)
-	msgParts := strings.Split(msg, ":")
-	issueID := ""
-	if len(msgParts) > 1 {
-		issueID = strings.TrimSpace(strings.Split(msgParts[1], "\n")[0])
-		// Use issueID as needed
-	}
+	issueID := linear.GetIssueId(ev, client)
 
 	fmt.Println("issueId: ", issueID)
 	file, _, _, err := client.GetFileInfo(ev.FileID, 0, 0)
@@ -110,9 +104,18 @@ func handleInteraction(callback slack.InteractionCallback, client *slack.Client)
 		if err != nil {
 			fmt.Printf("Error creating issue on linear: %v\n", err)
 		}
-		message := "Thanks for submitting the issue! Please upload screenshot to support your issue in the thread of this chat. \nYour issueId: " + issueID + " \nTitle: " + title + "\nDescription: " + description
+		message := "Thanks for submitting the issue! Please upload screenshot to support your issue in the reply of this Msg. \nYour issueId: " + issueID + " \nTitle: " + title + "\nDescription: " + description
 
-		_, _, err = client.PostMessage(callback.User.ID, slack.MsgOptionText(message, false), slack.MsgOptionMetadata(slack.SlackMetadata{}))
+		metadata := slack.SlackMetadata{
+			EventType: "Issue_created",
+			EventPayload: map[string]interface{}{
+				"IssueId": issueID,
+			},
+		}
+
+		fmt.Printf("Sending Metadata: %+v\n", metadata)
+
+		_, _, err = client.PostMessage(callback.User.ID, slack.MsgOptionText(message, false), slack.MsgOptionMetadata(metadata))
 		if err != nil {
 			fmt.Printf("Error sending upload instructions: %v\n", err)
 		}
@@ -123,10 +126,8 @@ func handleInteraction(callback slack.InteractionCallback, client *slack.Client)
 
 func handleMessage(ev *slackevents.MessageEvent, client *slack.Client, repo *database.Repository) {
 	print(ev.Text)
-	// switch strings.ToLower(strings.Split(ev.Text, " ")[0]) {
-	// case "rider":
-	// 	slackcmd.AppCammonds(ev, client, repo)
-	// default:
-	// 	client.PostMessage(ev.Channel, slack.MsgOptionText("comming soon ...", true))
-	// }
+	switch strings.ToLower(strings.Split(ev.Text, " ")[0]) {
+	case "rider":
+		slackcmd.AppCammonds(ev, client, repo)
+	}
 }

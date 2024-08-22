@@ -168,10 +168,11 @@ func GetIssueId(ev *slackevents.FileSharedEvent, client *slack.Client) string {
 	}
 	print("threadts", timestamp)
 	params := slack.GetConversationHistoryParameters{
-		ChannelID: ev.ChannelID,
-		Latest:    timestamp,
-		Inclusive: true,
-		Limit:     1,
+		ChannelID:          ev.ChannelID,
+		Latest:             timestamp,
+		Inclusive:          true,
+		Limit:              1,
+		IncludeAllMetadata: true,
 	}
 
 	history, err := client.GetConversationHistory(&params)
@@ -181,10 +182,9 @@ func GetIssueId(ev *slackevents.FileSharedEvent, client *slack.Client) string {
 
 	if len(history.Messages) > 0 {
 		message := history.Messages[0]
-		fmt.Printf("Message Text: %s\n", message.Msg.Text)
-		return message.Msg.Text
+		issueId := message.Msg.Metadata.EventPayload["IssueId"]
+		return issueId.(string)
 	} else {
 		return "No message found at that timestamp."
 	}
-
 }
